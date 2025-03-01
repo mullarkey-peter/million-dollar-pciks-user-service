@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.glizzy.milliondollarpicks.authservice.grpc";
+option java_outer_classname = "AuthProto";
+
+package auth;
+
+// Authentication service definition
+service AuthService {
+  // Validate a JWT token
+  rpc ValidateToken (TokenValidationRequest) returns (TokenValidationResponse) {}
+
+  // Get user info from token
+  rpc GetUserInfo (TokenValidationRequest) returns (UserInfoResponse) {}
+}
+
+// The request message containing the token to validate
+message TokenValidationRequest {
+  string token = 1;
+}
+
+// The response message containing the validation result
+message TokenValidationResponse {
+  bool valid = 1;
+  string message = 2;
+}
+
+// The response message containing user information
+message UserInfoResponse {
+  string user_id = 1;
+  string username = 2;
+  bool success = 3;
+  string message = 4;
+}

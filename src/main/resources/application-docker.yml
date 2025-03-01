@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/userdb
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+  flyway:
+    url: ${SPRING_FLYWAY_URL:jdbc:postgresql://postgres:5432/userdb}
+    user: ${SPRING_FLYWAY_USER:postgres}
+    password: ${SPRING_FLYWAY_PASSWORD:postgres}
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+# Logging configuration for better troubleshooting
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    com.glizzy.milliondollarpicks: DEBUG
+    org.springframework.boot: INFO
+
+grpc:
+  client:
+    auth-service:
+      host: auth-service
+      port: 9090
