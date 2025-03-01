@@ -5,7 +5,6 @@ import com.glizzy.milliondollarpicks.userservice.service.UserService;
 import com.netflix.graphql.dgs.DgsComponent;
 import com.netflix.graphql.dgs.DgsEntityFetcher;
 import lombok.RequiredArgsConstructor;
-
 import java.util.Map;
 
 @DgsComponent
@@ -15,8 +14,15 @@ public class UserEntityFetcher {
     private final UserService userService;
 
     @DgsEntityFetcher(name = "User")
-    public UserDto fetchUserById(Map<String, Object> values) {
-        String id = (String) values.get("id");
-        return userService.findUserById(Long.parseLong(id));
+    public UserDto fetchUser(Map<String, Object> values) {
+        // Handle both ID and username reference resolvers
+        if (values.containsKey("id")) {
+            String id = (String) values.get("id");
+            return userService.findUserById(Long.parseLong(id));
+        } else if (values.containsKey("username")) {
+            String username = (String) values.get("username");
+            return userService.findUserByUsername(username);
+        }
+        return null;
     }
 }

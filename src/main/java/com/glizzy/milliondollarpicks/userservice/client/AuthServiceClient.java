@@ -35,10 +35,37 @@ public class AuthServiceClient {
     @PostConstruct
     public void init() {
         log.info("Initializing gRPC client to auth-service at {}:{}", authServiceHost, authServicePort);
-        channel = ManagedChannelBuilder.forAddress(authServiceHost, authServicePort)
-                .usePlaintext()
-                .build();
-        blockingStub = AuthServiceGrpc.newBlockingStub(channel);
+        connectWithRetry();
+    }
+
+    private void connectWithRetry() {
+        int maxRetries = 5;
+        int retryCount = 0;
+        int backoffTimeMs = 5000; // 5 seconds
+
+        while (retryCount < maxRetries) {
+            try {
+                channel = ManagedChannelBuilder.forAddress(authServiceHost, authServicePort)
+                        .usePlaintext()
+                        .build();
+                blockingStub = AuthServiceGrpc.newBlockingStub(channel);
+                log.info("Successfully connected to auth-service");
+                return;
+            } catch (Exception e) {
+                retryCount++;
+                log.warn("Failed to connect to auth-service (attempt {}/{}). Retrying in {} ms...",
+                        retryCount, maxRetries, backoffTimeMs);
+                try {
+                    Thread.sleep(backoffTimeMs);
+                    // Increase backoff time for next attempt
+                    backoffTimeMs *= 2;
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    log.error("Retry interrupted", ie);
+                }
+            }
+        }
+        log.error("Failed to connect to auth-service after {} attempts", maxRetries);
     }
 
     @PreDestroy

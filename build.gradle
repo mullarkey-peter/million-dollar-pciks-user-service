@@ -65,8 +65,12 @@ dependencies {
     // Jakarta annotations (corrected from javax.annotation)
     implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
 
-    // Add this to ensure javax.annotation.Generated is available
     implementation 'javax.annotation:javax.annotation-api:1.3.2'
+
+    // gRPC Census dependency for monitoring
+    implementation 'io.opencensus:opencensus-api:0.31.1'
+    implementation 'io.opencensus:opencensus-contrib-grpc-metrics:0.31.1'
+    implementation 'io.grpc:grpc-census:1.60.0'
 }
 
 protobuf {

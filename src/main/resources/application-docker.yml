@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5432/userdb
+    url: jdbc:postgresql://user-postgres:5432/userdb
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -15,7 +15,7 @@ spring:
     show-sql: true
 
   flyway:
-    url: ${SPRING_FLYWAY_URL:jdbc:postgresql://postgres:5432/userdb}
+    url: ${SPRING_FLYWAY_URL:jdbc:postgresql://user-postgres:5432/userdb}
     user: ${SPRING_FLYWAY_USER:postgres}
     password: ${SPRING_FLYWAY_PASSWORD:postgres}
     baseline-on-migrate: true

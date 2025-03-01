@@ -27,6 +27,7 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql: TRACE
     com.glizzy.milliondollarpicks: DEBUG
+    io.grpc: DEBUG
 
 grpc:
   client:
