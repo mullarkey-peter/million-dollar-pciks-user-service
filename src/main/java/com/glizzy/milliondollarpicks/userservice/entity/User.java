@@ -30,4 +30,7 @@ public class User {
 
     @Column(name = "last_login_date")
     private OffsetDateTime lastLoginDate;
+
+    @Column(name = "email")
+    private String email;
 }

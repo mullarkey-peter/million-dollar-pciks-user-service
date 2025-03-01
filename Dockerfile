@@ -9,9 +9,6 @@ COPY gradlew.bat .
 COPY settings.gradle .
 COPY build.gradle .
 
-# Give execution permission to gradlew
-RUN chmod +x ./gradlew
-
 # Copy the source code
 COPY src/ src/
 

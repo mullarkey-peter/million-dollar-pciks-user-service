@@ -28,6 +28,14 @@ public class UserResolver {
     }
 
     /**
+     * Query to fetch user by email
+     */
+    @DgsQuery
+    public UserDto userByEmail(@InputArgument String email) {
+        return userService.findUserByEmail(email);
+    }
+
+    /**
      * Query to fetch user by ID
      */
     @DgsQuery

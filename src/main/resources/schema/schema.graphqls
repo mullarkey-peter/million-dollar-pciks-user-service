@@ -3,6 +3,7 @@ scalar DateTime
 type Query {
     userById(id: ID!): User
     userByUsername(username: String!): User
+    userByEmail(email : String!): User
 }
 
 type Mutation {
@@ -13,6 +14,7 @@ type Mutation {
 type User {
     id: ID!
     username: String!
+    email : String!
     registrationDate: DateTime
     lastLoginDate: DateTime
 }

@@ -13,6 +13,7 @@ import java.time.OffsetDateTime;
 public class UserDto {
     private Long id;
     private String username;
+    private String email;
     private OffsetDateTime registrationDate;
     private OffsetDateTime lastLoginDate;
 }
