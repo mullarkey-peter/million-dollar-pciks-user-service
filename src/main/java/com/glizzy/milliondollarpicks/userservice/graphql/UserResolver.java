@@ -55,7 +55,7 @@ public class UserResolver {
      * Internal mutation for federation to create/update users
      */
     @DgsMutation
-    public UserDto createOrUpdateUser(@InputArgument String username) {
-        return userService.createOrUpdateUser(username);
+    public UserDto createOrUpdateUser(@InputArgument String username, @InputArgument(name = "email") String email) {
+        return userService.createOrUpdateUser(username, email);
     }
 }

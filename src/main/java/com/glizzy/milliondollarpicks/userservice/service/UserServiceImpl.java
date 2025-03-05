@@ -52,12 +52,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto createOrUpdateUser(String username) {
+    public UserDto createOrUpdateUser(String username, String email) {
         return userRepository.findByUsername(username)
-                .map(existingUser -> userMapper.toDto(userRepository.save(existingUser)))
+                .map(existingUser -> {
+                    if (email != null) {
+                        existingUser.setEmail(email);
+                    }
+                    return userMapper.toDto(userRepository.save(existingUser));
+                })
                 .orElseGet(() -> {
                     User newUser = new User();
                     newUser.setUsername(username);
+                    if (email != null) {
+                        newUser.setEmail(email);
+                    } else {
+                        // Provide a default or throw an exception since email is non-nullable in the schema
+                        newUser.setEmail(username + "@example.com"); // Example default
+                    }
                     newUser.setRegistrationDate(OffsetDateTime.now());
                     return userMapper.toDto(userRepository.save(newUser));
                 });
