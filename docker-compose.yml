@@ -15,7 +15,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
-      - SPRING_FLYWAY_URL=jdbc:postgresql://postgres:5432/userdb
+      - SPRING_FLYWAY_URL=jdbc:postgresql://user-postgres:5432/userdb
       - SPRING_FLYWAY_USER=postgres
       - SPRING_FLYWAY_PASSWORD=postgres
       # Disable authentication
@@ -27,7 +27,7 @@ services:
   # PostgreSQL Database for User Service
   postgres:
     image: postgres:15-alpine
-    container_name: postgres
+    container_name: user-postgres
     ports:
       - "5432:5432"
     environment:
