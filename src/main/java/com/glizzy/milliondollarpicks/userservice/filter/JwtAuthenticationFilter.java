@@ -6,20 +6,26 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.ReadListener;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.ContentCachingRequestWrapper;
+
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
-
     private final AuthServiceClient authServiceClient;
-
 
     @Value("${authentication.enabled:true}")
     private boolean authenticationEnabled;
@@ -29,59 +35,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Skip authentication if disabled
+        ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request);
+
         if (!authenticationEnabled) {
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(requestWrapper, response);
             return;
         }
 
-        // Skip token validation for GraphQL playground
-        String path = request.getRequestURI();
+        String path = requestWrapper.getRequestURI();
         if (path.contains("/graphiql")) {
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(requestWrapper, response);
             return;
         }
 
-        String authHeader = request.getHeader("Authorization");
+        String authHeader = requestWrapper.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-
             log.debug("Validating token from request");
             TokenValidationResultDto validationResult = authServiceClient.validateToken(token);
-
             if (validationResult.isValid()) {
                 log.debug("Token is valid, proceeding with request");
-                filterChain.doFilter(request, response);
+                filterChain.doFilter(requestWrapper, response);
             } else {
                 log.warn("Invalid token: {}", validationResult.getMessage());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Unauthorized: " + validationResult.getMessage());
             }
         } else {
-            // If it's a GraphQL request that requires authentication, check the header
-            if (path.equals("/graphql") && isAuthenticationRequired(request)) {
+            if (path.equals("/graphql") && isAuthenticationRequired(requestWrapper)) {
                 log.warn("Missing Authorization header for GraphQL request");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Unauthorized: Missing or invalid token");
             } else {
-                // For other requests or GraphQL queries that don't need auth, proceed
-                filterChain.doFilter(request, response);
+                filterChain.doFilter(requestWrapper, response);
             }
         }
     }
 
-    // Helper method to determine if a GraphQL request requires authentication
-    private boolean isAuthenticationRequired(HttpServletRequest request) {
-        // Here you could inspect the GraphQL query to determine if it requires authentication
-        // For simplicity, let's assume all mutations require authentication, but queries don't
-        // In a real application, you'd need more sophisticated logic here
+    private boolean isAuthenticationRequired(ContentCachingRequestWrapper request) {
         try {
-            String body = request.getReader().lines().reduce("", (accumulator, actual) -> accumulator + actual);
+            // Get the content as a String - this doesn't consume the input stream
+            String body = new String(request.getContentAsByteArray(), StandardCharsets.UTF_8);
             return body.contains("mutation");
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Error reading request body", e);
             return false;
         }
