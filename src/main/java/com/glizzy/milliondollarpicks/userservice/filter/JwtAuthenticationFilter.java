@@ -49,6 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Check if it's a GraphQL request
         if (path.equals("/graphql")) {
             String requestBody = new String(requestWrapper.getContentAsByteArray(), StandardCharsets.UTF_8);
+            log.debug("GraphQL request body: {}", requestBody);
 
             boolean isIntrospection = requestBody.contains("__schema") ||
                     requestBody.contains("IntrospectionQuery") ||
