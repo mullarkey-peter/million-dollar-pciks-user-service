@@ -18,7 +18,7 @@ services:
       - SPRING_FLYWAY_URL=jdbc:postgresql://user-postgres:5432/userdb
       - SPRING_FLYWAY_USER=postgres
       - SPRING_FLYWAY_PASSWORD=postgres
-      # Disable authentication
+      # Disable authentication for development
       - AUTHENTICATION_ENABLED=false
     networks:
       - milliondollarpicks-network

@@ -1,5 +1,10 @@
+extend schema
+@link(url: "https://specs.apollo.dev/federation/v2.3",
+    import: ["@key", "@shareable"])
+
 scalar DateTime
 
+# Base types required for schema definition
 type Query {
     _empty: String
 }
@@ -8,20 +13,30 @@ type Mutation {
     _empty: String
 }
 
+# User service responsible for managing user entities
 extend type Query {
+    # User lookup by various identifiers
     userById(id: ID!): User
     userByUsername(username: String!): User
     userByEmail(email: String!): User
 }
 
 extend type Mutation {
+    # Authentication related mutations
     updateLastLogin(username: String!): User
-    createOrUpdateUser(username: String!): User
+
+    # User management mutations
+    createOrUpdateUser(
+        username: String!,
+        email: String,
+    ): User
 }
 
-type User @key(fields: "id") @key(fields: "username") {
+
+# Core User entity with multiple @key fields for reference across services
+type User @key(fields: "id") @key(fields: "username") @key(fields: "email") {
     id: ID!
-    username: String!
+    username: String! @shareable
     email: String!
     registrationDate: DateTime
     lastLoginDate: DateTime

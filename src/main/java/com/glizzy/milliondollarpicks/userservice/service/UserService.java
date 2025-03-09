@@ -7,5 +7,5 @@ public interface UserService {
     UserDto findUserById(Long id);
     UserDto findUserByEmail(String email);
     UserDto updateLastLogin(String username);
-    UserDto createOrUpdateUser(String username); // For federation to create/update users
+    UserDto createOrUpdateUser(String username, String email); // For federation to create/update users
 }

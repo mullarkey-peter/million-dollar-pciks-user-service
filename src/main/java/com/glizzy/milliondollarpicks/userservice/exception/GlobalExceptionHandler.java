@@ -6,6 +6,8 @@ import graphql.execution.DataFetcherExceptionHandlerParameters;
 import graphql.execution.DataFetcherExceptionHandlerResult;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -15,6 +17,18 @@ public class GlobalExceptionHandler extends DefaultDataFetcherExceptionHandler {
     @Override
     public CompletableFuture<DataFetcherExceptionHandlerResult> handleException(DataFetcherExceptionHandlerParameters handlerParameters) {
         Throwable exception = handlerParameters.getException();
+
+        if (exception instanceof AuthenticationException) {
+            return CompletableFuture.completedFuture(
+                    DataFetcherExceptionHandlerResult.newResult()
+                            .error(TypedGraphQLError.newBuilder()
+                                    .message(exception.getMessage())
+                                    .path(handlerParameters.getPath())
+                                    .extensions(Map.of("code", "UNAUTHENTICATED"))
+                                    .build())
+                            .build()
+            );
+        }
 
         if (exception instanceof UserNotFoundException) {
             return CompletableFuture.completedFuture(
